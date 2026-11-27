@@ -51,8 +51,12 @@ class _AddMaterialRequisitionScreenState
   );
   final ValueNotifier<ProjectSetupStatusModel?> _projectSetupStatus =
       ValueNotifier(null);
+
   //EDIT MODE
   bool get _isEditMode => widget.materialRequisitionModel != null;
+
+  /// Record fetched from API (edit mode only)
+  MaterialRequisitionModel? _details;
 
   MultiFilePickerModel selectedDocuments = MultiFilePickerModel(
     fileBytesList: [],
@@ -60,10 +64,10 @@ class _AddMaterialRequisitionScreenState
     deletedFileList: "",
   );
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   int get _projectId =>
-      _selectedProject.value?['zAttributesId'] ??
-      widget.materialRequisitionModel?.projectId ??
-      0;
+      _selectedProject.value?['zAttributesId'] ?? _details?.projectId ?? 0;
+
   @override
   void initState() {
     super.initState();
@@ -74,25 +78,41 @@ class _AddMaterialRequisitionScreenState
 
   void _prefill() {
     if (!_isEditMode) return;
-    final model = widget.materialRequisitionModel!;
+    final initial = widget.materialRequisitionModel!; // only used for the ids
 
-    _selectedProject.value = projectList.firstWhere(
-      (e) => e['zAttributesId'] == model.projectId,
-      orElse: () => {'zAttributesId': model.projectId, 'DisplayName': ''},
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final model = await _materialRequisitionCubit.getMaterialRequisitionById(
+        context,
+        1,
+        initial.projectId,
+        initial.materialRequisitionId,
+      );
+      if (!mounted || model == null) return;
+
+      _details = model;
+
+      selectedDocuments.fileNameList =
+          model.attachmentsURL.isNotEmpty
+              ? model.attachmentsURL.split(',')
+              : [];
+      _materialRequisitionCubit.initializeMaterialList(
+        model.materialRequisitionDetailData,
+      );
+      _remarkC.text = model.remarks;
+
+      _selectedProject.value = projectList.firstWhere(
+        (e) => e['zAttributesId'] == model.projectId,
+        orElse: () => {'zAttributesId': model.projectId, 'DisplayName': ''},
+      );
+
+      // Set last: the form section only builds once this is complete,
+      // so the file picker sees the prefilled initialFileList.
       _projectSetupStatus.value = await _materialRequisitionCubit
           .fetchProjectSetupStatus(
             context: context,
             projectId: model.projectId,
           );
     });
-    selectedDocuments.fileNameList =
-        model.attachmentsURL.isNotEmpty ? model.attachmentsURL.split(',') : [];
-    _materialRequisitionCubit.initializeMaterialList(
-      model.materialRequisitionDetailData,
-    );
-    _remarkC.text = model.remarks;
   }
 
   void _saveForm() {
@@ -105,20 +125,18 @@ class _AddMaterialRequisitionScreenState
     }
 
     if (_isEditMode) {
+      final details = _details;
+      if (details == null) return;
+
       _materialRequisitionCubit.updateMaterialRequisition(
-        materialRequisitionId:
-            widget.materialRequisitionModel!.materialRequisitionId,
-        uniqueKey: widget.materialRequisitionModel!.uniquekey,
+        materialRequisitionId: details.materialRequisitionId,
+        uniqueKey: details.uniquekey,
         index: widget.index!,
         attachments: selectedDocuments,
         context: context,
         materialRequisitionDetailJSON:
             _materialRequisitionCubit.state.materialList,
-        projectId:
-            _materialRequisitionCubit
-                .state
-                .materialRequisitionOverview!
-                .projectId,
+        projectId: details.projectId,
         remarks: _remarkC.text.trim(),
       );
     } else {
@@ -150,6 +168,8 @@ class _AddMaterialRequisitionScreenState
   @override
   void dispose() {
     _remarkC.dispose();
+    _selectedProject.dispose();
+    _projectSetupStatus.dispose();
     super.dispose();
   }
 
@@ -183,6 +203,7 @@ class _AddMaterialRequisitionScreenState
                     child: CustomDropDownWidget(
                       dataList: projectList,
                       title: "Project",
+                      isDisabled: _isEditMode,
                       initialValue: _selectedProject.value,
                       hintText: "Select Project",
                       onSelected: (value) async {
@@ -204,6 +225,7 @@ class _AddMaterialRequisitionScreenState
                       },
                       isRequired: true,
                       validator: (value) {
+                        if (_isEditMode) return null;
                         if (value == null) {
                           return "Project is required.";
                         }
@@ -235,7 +257,7 @@ class _AddMaterialRequisitionScreenState
                                       Text(
                                         "Material Details",
                                         style: AppTextStyle.ts14M(
-                                          color: AppColor.black,
+                                          color: AppColor.grey,
                                         ),
                                       ),
                                       CustomButton(
@@ -254,98 +276,170 @@ class _AddMaterialRequisitionScreenState
                                   ),
 
                                   if (state.materialList.isNotEmpty)
+                                    buildRowTitleValue(
+                                      title: 'Material Type',
+                                      fixesWidth: 110,
+                                      value:
+                                          state
+                                              .materialList
+                                              .first
+                                              .materialRequisitionType,
+                                      customValueWidget: Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
+                                        // margin: EdgeInsets.only(left: 20),
+                                        decoration: BoxDecoration(
+                                          color: AppColor.lightBlueBg2,
+                                          border: Border.all(
+                                            color: AppColor.lightBlue,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          state
+                                              .materialList
+                                              .first
+                                              .materialRequisitionType,
+                                          style: AppTextStyle.ts10M(
+                                            color: AppColor.primary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  verticalSpacing(),
+                                  if (state.materialList.isNotEmpty)
                                     SizedBox(
                                       height:
                                           state.materialList.length > 1
                                               ? 350.h
                                               : 250.h,
-                                      child: ListView.builder(
+                                      child: ListView.separated(
                                         shrinkWrap: true,
                                         itemCount: state.materialList.length,
+                                        separatorBuilder:
+                                            (context, index) =>
+                                                verticalSpacing(),
                                         itemBuilder: (context, index) {
                                           final material =
                                               state.materialList[index];
-                                          return infoCard(
-                                            bgColor: AppColor.white,
-                                            borderColor: AppColor.primary,
-                                            titleWidget: Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                          return Container(
+                                            padding: EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFFFAF8FF),
+                                              border: Border.all(
+                                                color: Color(0xFFC3C5D9),
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                            child: Column(
                                               children: [
-                                                buildColumnTitleValue(
-                                                  title: "Material Name",
-                                                  value: material.materialName,
+                                                Row(
+                                                  spacing: 5,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    buildColumnTitleValue(
+                                                      title: "Material",
+                                                      value:
+                                                          "fsdhukjfhsdjfhdsjfjsdhfdsjhfdskjjlfkdjkld",
+                                                      // material.materialName,
+                                                      titleTextStyle:
+                                                          AppTextStyle.ts12M(
+                                                            color:
+                                                                AppColor.grey,
+                                                          ),
+                                                    ),
+                                                    Row(
+                                                      spacing: 10.w,
+                                                      children: [
+                                                        CustomIconButton.edit(
+                                                          onPressed: () async {
+                                                            goRouter.pushNamed(
+                                                              AppRoutes
+                                                                  .addMaterial,
+                                                              queryParameters: {
+                                                                "material": Uri.encodeQueryComponent(
+                                                                  EncryptionManager.encryptData(
+                                                                    jsonEncode(
+                                                                      material
+                                                                          .toJson(),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                'index':
+                                                                    index
+                                                                        .toString(),
+                                                                'projectId':
+                                                                    _projectId
+                                                                        .toString(),
+                                                              },
+                                                            );
+                                                          },
+                                                        ),
+                                                        CustomIconButton.delete(
+                                                          onPressed: () {
+                                                            _showPopupToDeleteMaterial(
+                                                              context,
+                                                              index,
+                                                            );
+                                                          },
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                buildRowTitleValue(
+                                                  title: "Sub-Material",
+                                                  fixesWidth: 110,
                                                   titleTextStyle:
                                                       AppTextStyle.ts12M(
                                                         color: AppColor.grey,
                                                       ),
+                                                  value:
+                                                      material.subMaterialName,
                                                 ),
-                                                Row(
-                                                  spacing: 10.w,
-                                                  children: [
-                                                    CustomIconButton.edit(
-                                                      onPressed: () async {
-                                                        goRouter.pushNamed(
-                                                          AppRoutes.addMaterial,
-                                                          queryParameters: {
-                                                            "material": Uri.encodeQueryComponent(
-                                                              EncryptionManager.encryptData(
-                                                                jsonEncode(
-                                                                  material
-                                                                      .toJson(),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            'index':
-                                                                index
-                                                                    .toString(),
-                                                            'projectId':
-                                                                _projectId
-                                                                    .toString(),
-                                                          },
-                                                        );
-                                                      },
-                                                    ),
-                                                    CustomIconButton.delete(
-                                                      onPressed: () {
-                                                        _showPopupToDeleteMaterial(
-                                                          context,
-                                                          index,
-                                                        );
-                                                      },
-                                                    ),
-                                                  ],
+                                                buildRowTitleValue(
+                                                  title: "Quantity",
+                                                  fixesWidth: 110,
+                                                  titleTextStyle:
+                                                      AppTextStyle.ts12M(
+                                                        color: AppColor.grey,
+                                                      ),
+                                                  value:
+                                                      "${material.materialQuantity.addCommas()} (${material.uomCode})",
+                                                ),
+                                                buildRowTitleValue(
+                                                  title: "Required Date",
+                                                  fixesWidth: 110,
+                                                  titleTextStyle:
+                                                      AppTextStyle.ts12M(
+                                                        color: AppColor.grey,
+                                                      ),
+                                                  value:
+                                                      formatDateTimeAsDDMMMYYYY(
+                                                        material.requiredDate,
+                                                      ),
+                                                ),
+                                                Divider(
+                                                  height: 10,
+                                                  color: Color(0xFFC3C5D9),
+                                                ),
+                                                buildRowTitleValue(
+                                                  title: "Remark",
+                                                  fixesWidth: 110,
+                                                  titleTextStyle:
+                                                      AppTextStyle.ts12M(
+                                                        color: AppColor.grey,
+                                                      ),
+                                                  value: material.remark,
                                                 ),
                                               ],
                                             ),
-                                            [
-                                              {
-                                                "title": "Sub Material Name",
-                                                "value":
-                                                    material.subMaterialName,
-                                              },
-                                              {
-                                                "title": "UOM",
-                                                "value": material.uomCode,
-                                              },
-                                              {
-                                                "title": "Quantity",
-                                                "value":
-                                                    material.materialQuantity
-                                                        .addCommas(),
-                                              },
-                                              {
-                                                "title": "Required Date",
-                                                "value":
-                                                    formatDateTimeAsDDMMMYYYY(
-                                                      material.requiredDate,
-                                                    ),
-                                              },
-                                              {
-                                                "title": "Remark",
-                                                "value": material.remark,
-                                              },
-                                            ],
                                           );
                                         },
                                       ),
@@ -363,10 +457,8 @@ class _AddMaterialRequisitionScreenState
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Document Details",
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.black,
-                                ),
+                                "Details",
+                                style: AppTextStyle.ts14M(color: AppColor.grey),
                               ),
 
                               verticalSpacing(),
@@ -376,7 +468,7 @@ class _AddMaterialRequisitionScreenState
                                 isRequired: true,
                                 filePickType: FilePickType.both,
                                 initialFileList: selectedDocuments.fileNameList,
-
+                                readOnly: _isEditMode,
                                 onFilePickedCallback: (
                                   bytesList,
                                   fileNameList,

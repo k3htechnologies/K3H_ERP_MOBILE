@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -17,6 +18,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
@@ -103,25 +105,25 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
     super.dispose();
   }
 
-  // void _showPopupToDeleteMaterialRequisition({
-  //   required int index,
-  //   required MaterialRequisitionModel materialRequisitionModel,
-  //   required BuildContext context,
-  // }) async {
-  //   var result = await DialogHelper.deleteDialog(
-  //     context,
-  //     'You are about to delete this Material Requisition',
-  //     'Deleting this Material Requisition will permanently remove its contents.',
-  //   );
+  void _showPopupToDeleteMaterialRequisition({
+    required int index,
+    required MaterialRequisitionModel materialRequisitionModel,
+    required BuildContext context,
+  }) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete this Material Requisition',
+      'Deleting this Material Requisition will permanently remove its contents.',
+    );
 
-  //   if (result && context.mounted) {
-  //     _materialRequisitionCubit.deleteMaterialRequisition(
-  //       index: index,
-  //       materialRequisitionModel: materialRequisitionModel,
-  //       context: context,
-  //     );
-  //   }
-  // }
+    if (result && context.mounted) {
+      _materialRequisitionCubit.deleteMaterialRequisition(
+        index: index,
+        materialRequisitionModel: materialRequisitionModel,
+        context: context,
+      );
+    }
+  }
 
   Future<void> _showBottomSheetToFilterMaterialRequisition(
     BuildContext context,
@@ -466,68 +468,112 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                GestureDetector(
-                                  onTap: () async {
-                                    await _materialRequisitionCubit
-                                        .resetOverview();
-                                    await goRouter.pushNamed(
-                                      AppRoutes.viewMaterialRequisition,
-                                      queryParameters: {
-                                        "materialRequisitionId":
-                                            Uri.encodeQueryComponent(
-                                              EncryptionManager.encryptData(
-                                                materialRequisition
-                                                    .materialRequisitionId
-                                                    .toString(),
-                                              ),
-                                            ),
-                                        "projectId": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            materialRequisition.projectId
-                                                .toString(),
-                                          ),
-                                        ),
-                                        "uniquekey": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            materialRequisition.uniquekey,
-                                          ),
-                                        ),
+                                Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () async {
+                                        await _materialRequisitionCubit
+                                            .resetOverview();
+                                        await goRouter.pushNamed(
+                                          AppRoutes.viewMaterialRequisition,
+                                          queryParameters: {
+                                            "materialRequisitionId":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    materialRequisition
+                                                        .materialRequisitionId
+                                                        .toString(),
+                                                  ),
+                                                ),
+                                            "projectId":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    materialRequisition
+                                                        .projectId
+                                                        .toString(),
+                                                  ),
+                                                ),
+                                            "uniquekey":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    materialRequisition
+                                                        .uniquekey,
+                                                  ),
+                                                ),
+                                          },
+                                        );
                                       },
-                                    );
-                                  },
-                                  child: Text(
-                                    materialRequisition.systemGeneratedCode,
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.primary,
+                                      child: Text(
+                                        materialRequisition.systemGeneratedCode,
+                                        style: AppTextStyle.ts14M(
+                                          color: AppColor.primary,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                    InkWell(
+                                      onTap: () {
+                                        copy(
+                                          context: context,
+                                          text:
+                                              materialRequisition
+                                                  .systemGeneratedCode,
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5),
+                                        child: Icon(
+                                          Icons.copy,
+                                          size: 16,
+                                          color: AppColor.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                InkWell(
-                                  onTap: () {
-                                    copy(
-                                      context: context,
-                                      text:
-                                          materialRequisition
-                                              .systemGeneratedCode,
-                                    );
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(5),
-                                    child: Icon(
-                                      Icons.copy,
-                                      size: 16,
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
+                                materialRequisitionStatusWidget(
+                                  materialRequisition.materialRequisitionStatus,
                                 ),
                               ],
                             ),
-                            materialRequisitionStatusWidget(
-                              materialRequisition.materialRequisitionStatus,
+                            Row(
+                              spacing: 10,
+                              children: [
+                                CustomIconButton.edit(
+                                  onPressed: () async {
+                                    await _materialRequisitionCubit
+                                        .clearMaterialList();
+                                    await goRouter.pushNamed(
+                                      AppRoutes.addMaterialRequisition,
+                                      queryParameters: {
+                                        "materialRequisition":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(
+                                                  materialRequisition.toJson(),
+                                                ),
+                                              ),
+                                            ),
+                                        'index': index.toString(),
+                                      },
+                                    );
+                                  },
+                                ),
+                                CustomIconButton.delete(
+                                  onPressed: () {
+                                    _showPopupToDeleteMaterialRequisition(
+                                      context: context,
+                                      index: index,
+                                      materialRequisitionModel:
+                                          materialRequisition,
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -728,34 +774,5 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
         ),
       ),
     );
-  }
-
-  Widget statusWidget(String status) {
-    final trimmed = status.trim();
-
-    // IF EMPTY SHOW TEXT
-    if (trimmed.isEmpty) {
-      return statusChip("-", AppColor.lightGreyBackground, AppColor.black);
-    }
-
-    final s = trimmed.toLowerCase();
-
-    switch (s) {
-      case 'completed':
-        return statusChip(
-          status,
-          AppColor.green20.withValues(alpha: 0.1),
-          AppColor.green,
-        );
-
-      case 'closed':
-        return statusChip(status, AppColor.lightRed, AppColor.red);
-
-      case 'ongoing':
-        return statusChip(status, AppColor.lightBlue2, AppColor.info);
-
-      default:
-        return statusChip(status, AppColor.lightGreyBackground, AppColor.black);
-    }
   }
 }

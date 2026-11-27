@@ -209,7 +209,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                               text: "Add Material",
                               onPressed: () async {
                                 await _materialRequisitionCubit
-                                    .getMaterialRequisitionDetailsById(
+                                    .getMaterialRequisitionOverview(
                                       context,
                                       1,
                                       widget.projectId,
@@ -249,7 +249,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                                           CustomIconButton.edit(
                                             onPressed: () async {
                                               await _materialRequisitionCubit
-                                                  .getMaterialRequisitionDetailsById(
+                                                  .getMaterialRequisitionOverview(
                                                     context,
                                                     1,
                                                     widget.projectId,

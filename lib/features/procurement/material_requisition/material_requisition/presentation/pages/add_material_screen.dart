@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -27,6 +26,8 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
+typedef _Option = Map<String, dynamic>;
+
 class AddMaterialScreen extends StatefulWidget {
   final MaterialRequisitionDetailModel? materialDetails;
   final int projectId;
@@ -45,106 +46,160 @@ class AddMaterialScreen extends StatefulWidget {
 
 class _AddMaterialScreenState extends State<AddMaterialScreen>
     with SingleTickerProviderStateMixin {
-  final UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
-  final BudgetRepository budgetRepository = serviceLocator<BudgetRepository>();
-  // CUBIT
-  late MaterialRequisitionCubit _materialRequisitionCubit;
-  late TabController _tabController;
+  static const String _direct = 'Direct';
+  static const String _inDirect = 'In - Direct';
 
-  late UserModel user;
+  final _utilsRepository = serviceLocator<UtilsRepository>();
+  final _budgetRepository = serviceLocator<BudgetRepository>();
 
-  // INDIRECT
-  final ValueNotifier<List<SubMaterialMasterModel>> rawMaterialList =
-      ValueNotifier([]);
-  final ValueNotifier<Map<String, dynamic>?> _selectedMaterial = ValueNotifier(
-    null,
-  );
-  final ValueNotifier<Map<String, dynamic>?> _selectedSubMaterial =
-      ValueNotifier(null);
-  final ValueNotifier<DateTime?> _inDirectRequiredDate = ValueNotifier(null);
+  late final MaterialRequisitionCubit _cubit;
+  late final TabController _tabController;
 
-  // DIRECT (budget)
-  final ValueNotifier<List<BudgetModel>> budgetList = ValueNotifier([]);
-  final ValueNotifier<Map<String, dynamic>?> _category = ValueNotifier(null);
-  final ValueNotifier<Map<String, dynamic>?> _subCategory = ValueNotifier(null);
-  final ValueNotifier<Map<String, dynamic>?> _description = ValueNotifier(null);
-  final ValueNotifier<Map<String, dynamic>?> _directSubMaterial = ValueNotifier(
-    null,
-  );
-  final ValueNotifier<DateTime?> _directRequiredDate = ValueNotifier(null);
+  late final List<String> _types;
 
-  //EDIT MODE
+  final _masterList = ValueNotifier<List<SubMaterialMasterModel>>([]);
+  final _material = ValueNotifier<_Option?>(null);
+  final _subMaterial = ValueNotifier<_Option?>(null);
+  final _inDirectDate = ValueNotifier<DateTime?>(null);
+
+  final _budgetList = ValueNotifier<List<BudgetModel>>([]);
+  final _category = ValueNotifier<_Option?>(null);
+  final _subCategory = ValueNotifier<_Option?>(null);
+  final _description = ValueNotifier<_Option?>(null);
+  final _directSubMaterial = ValueNotifier<_Option?>(null);
+  final _directDate = ValueNotifier<DateTime?>(null);
+
+  late TextEditingController _quantityC, _remarkC;
+  final _inDirectFormKey = GlobalKey<FormState>();
+  final _directFormKey = GlobalKey<FormState>();
+
   bool get _isEditMode => widget.materialDetails != null;
   bool get _isInDirectEdit =>
       _isEditMode &&
-      widget.materialDetails!.materialRequisitionType == 'In - Direct';
+      widget.materialDetails!.materialRequisitionType == _inDirect;
 
-  late TextEditingController _uomC, _quantityC, _remarkC;
-  final GlobalKey<FormState> _inDirectFormKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> _directFormKey = GlobalKey<FormState>();
+  bool get _isInDirectTab => _types[_tabController.index] == _inDirect;
 
   @override
   void initState() {
     super.initState();
-    initializeTextEditingController();
+    _cubit = context.read<MaterialRequisitionCubit>();
+    _initializeTextEditingControllers();
+    _types = _resolveTypes();
+    final startIndex = _types.indexOf(_isInDirectEdit ? _inDirect : _direct);
     _tabController = TabController(
-      length: 2,
+      length: _types.length,
       vsync: this,
-      initialIndex: _isInDirectEdit ? 1 : 0,
-    );
-    _tabController.addListener(_handleTabChange);
-    _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
-    user = getCurrentUser();
+      initialIndex: startIndex < 0 ? 0 : startIndex,
+    )..addListener(_handleTabChange);
+
     _prefill();
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await getBudget();
-      // Editing an In-Direct row opens directly on the In-Direct tab,
-      // so the master list has to be loaded here (no tab change fires).
-      if (_isInDirectEdit && mounted) await getMaterialSubMaterialUOMMaster();
+      if (_types.contains(_direct)) await _loadBudget();
+
+      // NO TAB CHANGE FIRES WHEN STARTING ON IN-DIRECT, SO LOAD IT HERE
+      if (_isInDirectTab && mounted) await _loadMasterList();
     });
   }
 
-  void _handleTabChange() {
-    if (_tabController.indexIsChanging) return;
-    if (_tabController.index == 1 && rawMaterialList.value.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        getMaterialSubMaterialUOMMaster();
-      });
-    }
-  }
-
-  void initializeTextEditingController() {
-    _uomC = TextEditingController();
+  void _initializeTextEditingControllers() {
     _quantityC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
-  void _prefill() {
-    if (!_isInDirectEdit) return;
-
-    final details = widget.materialDetails!;
-    _selectedMaterial.value = {
-      "DisplayName": details.materialName,
-      "zAttributesId": details.materialMasterId,
-      "Code": details.materialCode,
-    };
-    _selectedSubMaterial.value = {
-      "DisplayName": details.subMaterialName,
-      "zAttributesId": details.subMaterialMasterId,
-    };
-    _uomC.text = details.uomCode;
-    _inDirectRequiredDate.value = details.requiredDate;
-    _quantityC.text = details.materialQuantity.toString();
-    _remarkC.text = details.remark;
+  // EMPTY LIST -> BOTH TABS, OTHERWISE ONLY THE TYPE ALREADY IN THE LIST
+  List<String> _resolveTypes() {
+    final list = _cubit.state.materialList;
+    return list.isEmpty
+        ? [_direct, _inDirect]
+        : [list.first.materialRequisitionType];
   }
 
-  // ---------------------------------------------------------------------------
-  // DIRECT => BUDGET
-  // ---------------------------------------------------------------------------
-  Future<void> getBudget() async {
+  void _handleTabChange() {
+    if (_tabController.indexIsChanging) return;
+    if (_isInDirectTab && _masterList.value.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadMasterList());
+    }
+  }
+
+  void _prefill() {
+    if (!_isEditMode) return;
+    final d = widget.materialDetails!;
+
+    _quantityC.text = d.materialQuantity.toString();
+    _remarkC.text = d.remark;
+
+    if (_isInDirectEdit) {
+      _material.value = {
+        "DisplayName": d.materialName,
+        "zAttributesId": d.materialMasterId,
+        "Code": d.materialCode,
+      };
+      _subMaterial.value = {
+        "DisplayName": d.subMaterialName,
+        "zAttributesId": d.subMaterialMasterId,
+      };
+      _inDirectDate.value = d.requiredDate;
+    } else {
+      // SET NOTIFIERS DIRECTLY: SETTERS WOULD RESET LOWER LEVELS AND THE DATE
+      _category.value = {
+        "zAttributesId": d.levelId1,
+        "DisplayName": d.level1Name,
+      };
+      _subCategory.value = {
+        "zAttributesId": d.levelId2,
+        "DisplayName": d.level2Name,
+      };
+      _description.value = {
+        "zAttributesId": d.levelId3,
+        "DisplayName": d.level3Name,
+      };
+      _directSubMaterial.value = {
+        "zAttributesId": d.levelId4,
+        "DisplayName": d.level4Name,
+      };
+      _directDate.value = d.requiredDate;
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _quantityC.dispose();
+    _remarkC.dispose();
+
+    _masterList.dispose();
+    _material.dispose();
+    _subMaterial.dispose();
+    _inDirectDate.dispose();
+
+    _budgetList.dispose();
+    _category.dispose();
+    _subCategory.dispose();
+    _description.dispose();
+    _directSubMaterial.dispose();
+    _directDate.dispose();
+    super.dispose();
+  }
+
+  int _toInt(dynamic v) =>
+      v == null ? 0 : num.tryParse(v.toString())?.toInt() ?? 0;
+
+  String _yesNo(dynamic v) {
+    final value = v.toString().toLowerCase();
+    return (value == 'true' || value == '1') ? 'Yes' : 'No';
+  }
+
+  DateTime _todayPlus(int days) {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day).add(Duration(days: days));
+  }
+
+  Future<void> _loadBudget() async {
     DialogHelper.showProcessingOverlay(context);
     try {
-      final result = await budgetRepository.pullBudget(
+      final result = await _budgetRepository.pullBudget(
         pageNumber: 1,
         pageSize: 10000,
         queryParams: {
@@ -157,191 +212,161 @@ class _AddMaterialScreenState extends State<AddMaterialScreen>
       result.fold(
         (failure) {
           showErrorMessage(context, 'Error', failure.message);
-          budgetList.value = [];
+          _budgetList.value = [];
         },
         (response) {
-          final data = response['data'] as List<BudgetModel>? ?? [];
-          budgetList.value = data;
-          debugPrint('BUDGET COUNT: ${data.length}');
+          _budgetList.value = response['data'] as List<BudgetModel>? ?? [];
         },
       );
     } catch (e, st) {
-      debugPrint('getBudget error: $e\n$st');
-      budgetList.value = [];
+      debugPrint('loadBudget error: $e\n$st');
+      _budgetList.value = [];
     } finally {
       if (mounted) goRouter.pop();
     }
   }
 
-  // DIRECT DROPDOWN LISTS (Category > Sub Category > Description > Sub Material)
-  // L1 -> Category
-  List<Map<String, dynamic>> get categoryList {
+  int? get _l1 => _category.value?['zAttributesId'];
+  int? get _l2 => _subCategory.value?['zAttributesId'];
+  int? get _l3 => _description.value?['zAttributesId'];
+  int? get _l4 => _directSubMaterial.value?['zAttributesId'];
+
+  List<_Option> _levelItems({
+    required String level,
+    required bool Function(BudgetModel e) test,
+    required int Function(BudgetModel e) id,
+    required String Function(BudgetModel e) name,
+  }) {
     final seen = <int>{};
-    return budgetList.value
-        .where((e) => e.levelType == 'L1' && seen.add(e.levelId1))
-        .map((e) => {"zAttributesId": e.levelId1, "DisplayName": e.level1Name})
+    return _budgetList.value
+        .where((e) => e.levelType == level && test(e) && seen.add(id(e)))
+        .map((e) => {"zAttributesId": id(e), "DisplayName": name(e)})
         .toList();
   }
 
-  // L2 -> Sub Category (depends on L1)
-  List<Map<String, dynamic>> get subCategoryList {
-    final l1 = _category.value?['zAttributesId'];
-    if (l1 == null) return [];
-    final seen = <int>{};
-    return budgetList.value
-        .where(
-          (e) =>
-              e.levelType == 'L2' && e.levelId1 == l1 && seen.add(e.levelId2),
-        )
-        .map((e) => {"zAttributesId": e.levelId2, "DisplayName": e.level2Name})
-        .toList();
-  }
+  List<_Option> get _categoryList => _levelItems(
+    level: 'L1',
+    test: (_) => true,
+    id: (e) => e.levelId1,
+    name: (e) => e.level1Name,
+  );
 
-  // L3 -> Description (depends on L1 + L2)
-  List<Map<String, dynamic>> get descriptionList {
-    final l1 = _category.value?['zAttributesId'];
-    final l2 = _subCategory.value?['zAttributesId'];
-    if (l1 == null || l2 == null) return [];
-    final seen = <int>{};
-    return budgetList.value
-        .where(
-          (e) =>
-              e.levelType == 'L3' &&
-              e.levelId1 == l1 &&
-              e.levelId2 == l2 &&
-              seen.add(e.levelId3),
-        )
-        .map((e) => {"zAttributesId": e.levelId3, "DisplayName": e.level3Name})
-        .toList();
-  }
+  List<_Option> get _subCategoryList =>
+      _l1 == null
+          ? []
+          : _levelItems(
+            level: 'L2',
+            test: (e) => e.levelId1 == _l1,
+            id: (e) => e.levelId2,
+            name: (e) => e.level2Name,
+          );
 
-  // L4 -> Sub Material (depends on L1 + L2 + L3)
-  List<Map<String, dynamic>> get directSubMaterialList {
-    final l1 = _category.value?['zAttributesId'];
-    final l2 = _subCategory.value?['zAttributesId'];
-    final l3 = _description.value?['zAttributesId'];
-    if (l1 == null || l2 == null || l3 == null) return [];
-    final seen = <int>{};
-    return budgetList.value
-        .where(
-          (e) =>
-              e.levelType == 'L4' &&
-              e.levelId1 == l1 &&
-              e.levelId2 == l2 &&
-              e.levelId3 == l3 &&
-              seen.add(e.levelId4),
-        )
-        .map((e) => {"zAttributesId": e.levelId4, "DisplayName": e.level4Name})
-        .toList();
-  }
+  List<_Option> get _descriptionList =>
+      (_l1 == null || _l2 == null)
+          ? []
+          : _levelItems(
+            level: 'L3',
+            test: (e) => e.levelId1 == _l1 && e.levelId2 == _l2,
+            id: (e) => e.levelId3,
+            name: (e) => e.level3Name,
+          );
 
-  // The selected L4 budget row (null until Sub Material is selected)
-  BudgetModel? get selectedBudgetItem {
-    final l1 = _category.value?['zAttributesId'];
-    final l2 = _subCategory.value?['zAttributesId'];
-    final l3 = _description.value?['zAttributesId'];
-    final l4 = _directSubMaterial.value?['zAttributesId'];
-    if (l1 == null || l2 == null || l3 == null || l4 == null) return null;
+  List<_Option> get _directSubMaterialList =>
+      (_l1 == null || _l2 == null || _l3 == null)
+          ? []
+          : _levelItems(
+            level: 'L4',
+            test:
+                (e) =>
+                    e.levelId1 == _l1 && e.levelId2 == _l2 && e.levelId3 == _l3,
+            id: (e) => e.levelId4,
+            name: (e) => e.level4Name,
+          );
 
-    for (final e in budgetList.value) {
+  BudgetModel? get _selectedBudget {
+    if (_l1 == null || _l2 == null || _l3 == null || _l4 == null) return null;
+    for (final e in _budgetList.value) {
       if (e.levelType == 'L4' &&
-          e.levelId1 == l1 &&
-          e.levelId2 == l2 &&
-          e.levelId3 == l3 &&
-          e.levelId4 == l4) {
+          e.levelId1 == _l1 &&
+          e.levelId2 == _l2 &&
+          e.levelId3 == _l3 &&
+          e.levelId4 == _l4) {
         return e;
       }
     }
     return null;
   }
 
-  // Lead time (days) of the selected L4 item
-  int get leadTimeDays {
-    final v = selectedBudgetItem?.level4LeadTimeInDays;
-    if (v == null) return 0;
-    return num.tryParse(v.toString())?.toInt() ?? 0;
+  DateTime? get _directLeadDate {
+    final item = _selectedBudget;
+    return item == null ? null : _todayPlus(_toInt(item.level4LeadTimeInDays));
   }
 
-  // Today + lead time (null until L4 is selected)
-  DateTime? get leadTimeRequiredDate {
-    if (selectedBudgetItem == null) return null;
-    return _todayPlus(leadTimeDays);
+  // SELECTING A LEVEL RESETS ALL LEVELS BELOW IT
+  void _setCategory(_Option? value) {
+    _category.value = value;
+    _setSubCategory(null);
   }
 
-  String get selectedDirectMaterialName =>
-      selectedBudgetItem?.level4MaterialName ?? '';
-  String get selectedSubMaterialName => selectedBudgetItem?.level4Name ?? '';
-
-  String get selectedDirectUom {
-    final e = selectedBudgetItem;
-    if (e == null) return '-';
-    return '${e.level4SubMaterialUom} (${e.level4SubMaterialUomCode})';
+  void _setSubCategory(_Option? value) {
+    _subCategory.value = value;
+    _setDescription(null);
   }
 
-  String get selectedDirectMaterialRate =>
-      (selectedBudgetItem?.materialCost ?? 0).toIndianCurrency();
-  String get selectedDirectRequiredQuantity =>
-      (selectedBudgetItem?.quantity ?? 0).addCommas();
-  String get selectedDirectOrderQuantity =>
-      (selectedBudgetItem?.orderQuantity ?? 0).addCommas();
-  String get selectedDirectReceivedQuantity =>
-      (selectedBudgetItem?.receivedQuantity ?? 0).addCommas();
-  String get selectedDirectLeadTime =>
-      (selectedBudgetItem?.level4LeadTimeInDays ?? 0).addCommas();
-  String get selectedDirectIsTolerant {
-    final value =
-        selectedBudgetItem?.level4IsTolerant.toString().toLowerCase() ?? '';
-    return (value == 'true' || value == '1') ? 'Yes' : 'No';
+  void _setDescription(_Option? value) {
+    _description.value = value;
+    _setDirectSubMaterial(null);
   }
 
-  // ---------------------------------------------------------------------------
-  // INDIRECT => MASTER
-  // ---------------------------------------------------------------------------
-  Future<void> getMaterialSubMaterialUOMMaster() async {
+  void _setDirectSubMaterial(_Option? value) {
+    _directSubMaterial.value = value;
+    _directDate.value = _directLeadDate;
+  }
+
+  Future<void> _loadMasterList() async {
     DialogHelper.showProcessingOverlay(context);
     try {
-      final result = await utilsRepository
+      final result = await _utilsRepository
           .getMaterialMasterSubMaterialMasterUOMMaster(
             projectId: widget.projectId,
-            queryParams: {"ClientRegistrationId": user.clientRegistrationId},
+            queryParams: {
+              "ClientRegistrationId": getCurrentUser().clientRegistrationId,
+            },
           );
 
       await result.fold(
         (failure) async {
           if (mounted) showErrorMessage(context, 'Error', failure.message);
-          rawMaterialList.value = [];
+          _masterList.value = [];
         },
         (response) async {
           final data = response["MaterialMasterSubMaterialMasterData"];
-
           if (data == null) {
-            rawMaterialList.value = [];
+            _masterList.value = [];
             return;
           }
 
-          final parsedList = await compute(
+          final parsed = await compute(
             (m) =>
                 (m as List<dynamic>)
                     .map((e) => SubMaterialMasterModel.fromJson(e))
                     .toList(),
             data,
           );
-
-          rawMaterialList.value = List<SubMaterialMasterModel>.from(parsedList);
+          _masterList.value = List<SubMaterialMasterModel>.from(parsed);
         },
       );
     } catch (e, st) {
-      debugPrint('getMaterialSubMaterialUOMMaster error: $e\n$st');
-      rawMaterialList.value = [];
+      debugPrint('loadMasterList error: $e\n$st');
+      _masterList.value = [];
     } finally {
       if (mounted) goRouter.pop();
     }
   }
 
-  List<Map<String, dynamic>> get materialList {
+  List<_Option> get _materialList {
     final seen = <dynamic>{};
-
-    return rawMaterialList.value
+    return _masterList.value
         .where((e) => seen.add(e.materialMasterId))
         .map(
           (e) => {
@@ -353,12 +378,11 @@ class _AddMaterialScreenState extends State<AddMaterialScreen>
         .toList();
   }
 
-  List<Map<String, dynamic>> get subMaterialList {
-    final selectedId = _selectedMaterial.value?['zAttributesId'];
-    if (selectedId == null) return [];
-
-    return rawMaterialList.value
-        .where((e) => e.materialMasterId == selectedId)
+  List<_Option> get _subMaterialList {
+    final materialId = _material.value?['zAttributesId'];
+    if (materialId == null) return [];
+    return _masterList.value
+        .where((e) => e.materialMasterId == materialId)
         .map(
           (e) => {
             "zAttributesId": e.subMaterialMasterId,
@@ -368,114 +392,77 @@ class _AddMaterialScreenState extends State<AddMaterialScreen>
         .toList();
   }
 
-  // The selected In-Direct master row (null until Sub Material is selected)
-  SubMaterialMasterModel? get selectedIndirectItem {
-    final id = _selectedSubMaterial.value?['zAttributesId'];
+  SubMaterialMasterModel? get _selectedMaster {
+    final id = _subMaterial.value?['zAttributesId'];
     if (id == null) return null;
-    for (final e in rawMaterialList.value) {
+    for (final e in _masterList.value) {
       if (e.subMaterialMasterId == id) return e;
     }
     return null;
   }
 
-  String get selectedInDirectUom {
-    final e = selectedIndirectItem;
-    if (e == null) return '-';
-    return e.uomCode;
+  DateTime? get _inDirectLeadDate {
+    final item = _selectedMaster;
+    return item == null ? null : _todayPlus(_toInt(item.leadTimeInDays));
   }
 
-  // Lead time (days) of the selected In-Direct sub material
-  int get indirectLeadTimeDays {
-    final v =
-        selectedIndirectItem?.leadTimeInDays; // <-- adjust field name if needed
-    if (v == null) return 0;
-    return num.tryParse(v.toString())?.toInt() ?? 0;
+  void _setMaterial(_Option? value) {
+    _material.value = value;
+    _setSubMaterial(null);
   }
 
-  String get selectedInDirectIsTolerant {
-    final value =
-        selectedIndirectItem?.isTolerant.toString().toLowerCase() ?? '';
-    return (value == 'true' || value == '1') ? 'Yes' : 'No';
+  void _setSubMaterial(_Option? value) {
+    _subMaterial.value = value;
+    _inDirectDate.value = _inDirectLeadDate;
   }
 
-  // Today + lead time (null until Sub Material is selected)
-  DateTime? get indirectLeadTimeRequiredDate {
-    if (selectedIndirectItem == null) return null;
-    return _todayPlus(indirectLeadTimeDays);
-  }
-
-  void updateUOM() {
-    final item = selectedIndirectItem;
-    if (item == null) return;
-    _uomC.text = item.uomCode;
-  }
-
-  DateTime _todayPlus(int days) {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day).add(Duration(days: days));
-  }
-
-  // ---------------------------------------------------------------------------
-  // SUBMIT
-  // ---------------------------------------------------------------------------
-  void _submit() {
-    if (_tabController.index == 0) {
-      _submitDirect();
-    } else {
-      _submitInDirect();
-    }
-  }
+  void _submit() => _isInDirectTab ? _submitInDirect() : _submitDirect();
 
   void _submitInDirect() {
     if (!_inDirectFormKey.currentState!.validate()) return;
-    final selectedItem = selectedIndirectItem;
-    if (selectedItem == null) return;
+    final item = _selectedMaster;
+    if (item == null) return;
 
     _saveMaterial(
       _buildMaterial(
-        materialMasterId: selectedItem.materialMasterId,
-        materialCode: _selectedMaterial.value?['Code'] ?? '',
-        materialName: _selectedMaterial.value?['DisplayName'] ?? '',
-        subMaterialName: _selectedSubMaterial.value?['DisplayName'] ?? '',
-        subMaterialMasterId: selectedItem.subMaterialMasterId,
-        uomMasterId: selectedItem.uomMasterId,
-        uomCode: selectedItem.uomCode,
-        uom: selectedItem.uom,
-        type: 'In - Direct',
-        requiredDate: _inDirectRequiredDate.value,
-        approvalStatus:
-            _isEditMode ? widget.materialDetails!.approvalStatus : '',
-        keepModified: true,
+        type: _inDirect,
+        materialMasterId: item.materialMasterId,
+        materialCode: _material.value?['Code'] ?? '',
+        materialName: _material.value?['DisplayName'] ?? '',
+        subMaterialName: _subMaterial.value?['DisplayName'] ?? '',
+        subMaterialMasterId: item.subMaterialMasterId,
+        uomMasterId: item.uomMasterId,
+        uomCode: item.uomCode,
+        uom: item.uom,
+        requiredDate: _inDirectDate.value,
       ),
     );
   }
 
   void _submitDirect() {
     if (!_directFormKey.currentState!.validate()) return;
-    final selectedItem = selectedBudgetItem;
-    if (selectedItem == null) return;
+    final item = _selectedBudget;
+    if (item == null) return;
 
     _saveMaterial(
       _buildMaterial(
-        materialMasterId: 0, // Map actual ID if available in BudgetModel
+        type: _direct,
+        materialMasterId: 0, // MAP ACTUAL ID WHEN AVAILABLE
         materialCode: '',
-        materialName: selectedItem.level4MaterialName,
-        subMaterialName: selectedItem.level4Name,
-        subMaterialMasterId: selectedItem.levelId4,
-        uomMasterId: 0, // Map actual ID if available in BudgetModel
-        uomCode: selectedItem.level4SubMaterialUomCode,
-        uom: selectedItem.level4SubMaterialUom,
-        type: 'Direct',
-        budget: selectedItem,
-        requiredDate: _directRequiredDate.value,
-        approvalStatus: '',
-        keepModified: false,
+        materialName: item.level4MaterialName,
+        subMaterialName: item.level4Name,
+        subMaterialMasterId: item.levelId4,
+        uomMasterId: 0, // MAP ACTUAL ID WHEN AVAILABLE
+        uomCode: item.level4SubMaterialUomCode,
+        uom: item.level4SubMaterialUom,
+        requiredDate: _directDate.value,
+        budget: item,
       ),
     );
   }
 
-  // Single place that builds the model for both tabs
   MaterialRequisitionDetailModel _buildMaterial({
+    required String type,
     required int materialMasterId,
     required String materialCode,
     required String materialName,
@@ -484,35 +471,30 @@ class _AddMaterialScreenState extends State<AddMaterialScreen>
     required int uomMasterId,
     required String uomCode,
     required String uom,
-    required String type,
     required DateTime? requiredDate,
-    required String approvalStatus,
-    required bool keepModified,
-    BudgetModel? budget, // only for Direct (budget hierarchy)
+    BudgetModel? budget,
   }) {
     final old = widget.materialDetails;
+    // ONLY AN EDITED IN-DIRECT ROW KEEPS OLD APPROVAL STATUS AND MODIFIED INFO
+    final keepOld = _isEditMode && type == _inDirect;
 
     return MaterialRequisitionDetailModel(
       materialRequisitionDetailId:
           _isEditMode ? old!.materialRequisitionDetailId : 0,
       uniquekey: _isEditMode ? old!.uniquekey : '',
 
-      // Material details
       materialMasterId: materialMasterId,
       materialCode: materialCode,
       materialName: materialName,
       subMaterialName: subMaterialName,
       subMaterialMasterId: subMaterialMasterId,
 
-      // UOM
       uomMasterId: uomMasterId,
       uomCode: uomCode,
       uom: uom,
 
-      // Material type
       materialRequisitionType: type,
 
-      // Budget hierarchy (0 / '' for In-Direct)
       levelId1: budget?.levelId1 ?? 0,
       level1Name: budget?.level1Name ?? '',
       levelId2: budget?.levelId2 ?? 0,
@@ -530,7 +512,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen>
 
       materialReceivedQuantityTillDate:
           _isEditMode ? old!.materialReceivedQuantityTillDate : 0,
-      approvalStatus: approvalStatus,
+      approvalStatus: keepOld ? old!.approvalStatus : '',
       vendorSystemGeneratedCode: '',
       vendorCompanyName: '',
       vendorName: '',
@@ -541,51 +523,24 @@ class _AddMaterialScreenState extends State<AddMaterialScreen>
       materialRequisitionPurchaseOrderId: 0,
       purchaseOrderCreatedBy: '',
       purchaseOrderCreatedDate: null,
-
       createdById: _isEditMode ? old!.createdById : 0,
       createdBy: _isEditMode ? old!.createdBy : '',
       createdDate: _isEditMode ? old!.createdDate : DateTime.now(),
-      modifiedById: (keepModified && _isEditMode) ? old!.modifiedById : 0,
-      modifiedBy: (keepModified && _isEditMode) ? old!.modifiedBy : '',
+      modifiedById: keepOld ? old!.modifiedById : 0,
+      modifiedBy: keepOld ? old!.modifiedBy : '',
       modifiedDate: null,
     );
   }
 
   void _saveMaterial(MaterialRequisitionDetailModel material) {
     if (_isEditMode) {
-      _materialRequisitionCubit.updateMaterialList(material, widget.index);
+      _cubit.updateMaterialList(material, widget.index);
     } else {
-      _materialRequisitionCubit.addMaterial(material);
+      _cubit.addMaterial(material);
     }
     goRouter.pop();
   }
 
-  @override
-  void dispose() {
-    _tabController.removeListener(_handleTabChange);
-    _tabController.dispose();
-
-    _uomC.dispose();
-    _quantityC.dispose();
-    _remarkC.dispose();
-
-    rawMaterialList.dispose();
-    _selectedMaterial.dispose();
-    _selectedSubMaterial.dispose();
-    _inDirectRequiredDate.dispose();
-
-    budgetList.dispose();
-    _category.dispose();
-    _subCategory.dispose();
-    _description.dispose();
-    _directSubMaterial.dispose();
-    _directRequiredDate.dispose();
-    super.dispose();
-  }
-
-  // ---------------------------------------------------------------------------
-  // UI
-  // ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -606,13 +561,19 @@ class _AddMaterialScreenState extends State<AddMaterialScreen>
           verticalSpacing(),
           ChipStyleTabBar(
             controller: _tabController,
-            tabs: ['Direct', 'In - Direct'],
+            tabs: _types,
+            style: ChipTabBarStyle.segmented,
           ),
           Expanded(
             child: TabBarView(
               controller: _tabController,
               physics: const NeverScrollableScrollPhysics(),
-              children: [_directView(), _inDirectView()],
+              children:
+                  _types
+                      .map(
+                        (t) => t == _inDirect ? _inDirectView() : _directView(),
+                      )
+                      .toList(),
             ),
           ),
         ],
@@ -632,426 +593,257 @@ class _AddMaterialScreenState extends State<AddMaterialScreen>
     );
   }
 
-  Widget _directView() {
-    return ValueListenableBuilder(
-      valueListenable: budgetList,
-      builder: (context, value, child) {
-        return SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-          child: Form(
-            key: _directFormKey,
-            child: Container(
-              decoration: commonCardDecoration(),
-              padding: EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ValueListenableBuilder(
-                    valueListenable: _category,
-                    builder: (context, value, child) {
-                      return CustomDropDownWidget(
-                        title: "Category",
-                        isRequired: true,
-                        hintText: "Select Category",
-                        initialValue: value,
-                        dataList: categoryList,
-                        onValueClear: () {
-                          _category.value = null;
-                          _subCategory.value = null;
-                          _description.value = null;
-                          _directSubMaterial.value = null;
-                          _directRequiredDate.value = null;
-                        },
-                        onSelected: (value) {
-                          _category.value = value;
-                          _subCategory.value = null;
-                          _description.value = null;
-                          _directSubMaterial.value = null;
-                          _directRequiredDate.value = null;
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Category is required.";
-                          }
-                          return null;
-                        },
-                      );
-                    },
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: _category,
-                    builder: (context, value, child) {
-                      return ValueListenableBuilder(
-                        valueListenable: _subCategory,
-                        builder: (context, value, child) {
-                          return CustomDropDownWidget(
-                            title: "Sub Category",
-                            isRequired: true,
-                            hintText: "Select Sub Category",
-                            initialValue: value,
-                            dataList: subCategoryList,
-                            onValueClear: () {
-                              _subCategory.value = null;
-                              _description.value = null;
-                              _directSubMaterial.value = null;
-                              _directRequiredDate.value = null;
-                            },
-                            onSelected: (value) {
-                              _subCategory.value = value;
-                              _description.value = null;
-                              _directSubMaterial.value = null;
-                              _directRequiredDate.value = null;
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Sub category is required.";
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: _subCategory,
-                    builder: (context, value, child) {
-                      return ValueListenableBuilder(
-                        valueListenable: _description,
-                        builder: (context, value, child) {
-                          return CustomDropDownWidget(
-                            title: "Description",
-                            isRequired: true,
-                            hintText: "Select Description",
-                            initialValue: value,
-                            dataList: descriptionList,
-                            onValueClear: () {
-                              _description.value = null;
-                              _directSubMaterial.value = null;
-                              _directRequiredDate.value = null;
-                            },
-                            onSelected: (value) {
-                              _description.value = value;
-                              _directSubMaterial.value = null;
-                              _directRequiredDate.value = null;
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Description is required.";
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: _description,
-                    builder: (context, value, child) {
-                      return ValueListenableBuilder(
-                        valueListenable: _directSubMaterial,
-                        builder: (context, value, child) {
-                          return CustomDropDownWidget(
-                            title: "Sub Material",
-                            isRequired: true,
-                            hintText: "Select Sub Material",
-                            initialValue: value,
-                            dataList: directSubMaterialList,
-                            onValueClear: () {
-                              _directSubMaterial.value = null;
-                              _directRequiredDate.value = null;
-                            },
-                            onSelected: (value) {
-                              _directSubMaterial.value = value;
-                              _directRequiredDate.value = leadTimeRequiredDate;
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Sub material is required.";
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  AnimatedBuilder(
-                    animation: Listenable.merge([
-                      _category,
-                      _subCategory,
-                      _description,
-                      _directSubMaterial,
-                    ]),
-                    builder: (context, _) {
-                      final item = selectedBudgetItem;
-                      return Column(
-                        children: [
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 100),
-                            alignment: Alignment.topCenter,
-                            child:
-                                item == null
-                                    ? const SizedBox(width: double.infinity)
-                                    : infoCard([
-                                      {
-                                        'title': 'Material Name',
-                                        'value': selectedDirectMaterialName,
-                                      },
-                                      {
-                                        'title': 'Sub Material Name',
-                                        'value': selectedSubMaterialName,
-                                      },
-                                      {
-                                        'title': 'UOM',
-                                        'value': selectedDirectUom,
-                                      },
-                                      {
-                                        'title': 'Material Rate',
-                                        'value': selectedDirectMaterialRate,
-                                      },
-                                      {
-                                        'title': 'Required Quantity',
-                                        'value': selectedDirectRequiredQuantity,
-                                      },
-                                      {
-                                        'title': 'Order Quantity',
-                                        'value': selectedDirectOrderQuantity,
-                                      },
-                                      {
-                                        'title': 'Received Quantity',
-                                        'value': selectedDirectReceivedQuantity,
-                                      },
-                                      {
-                                        'title': 'Lead Time (Days)',
-                                        'value': selectedDirectLeadTime,
-                                      },
-                                      {
-                                        'title': 'Is Tolerant',
-                                        'value': selectedDirectIsTolerant,
-                                      },
-                                    ]),
-                          ),
-                          verticalSpacing(),
-                        ],
-                      );
-                    },
-                  ),
-
-                  CustomTextField(
-                    title: "Quantity",
-                    hint: "Enter Quantity",
-                    isRequired: true,
-                    inputFormatterList: InputValidator.decimal(2),
-                    keyboardType: TextInputType.numberWithOptions(),
-                    textController: _quantityC,
-                    validator: (value) {
-                      if (value == null || value == "") {
-                        return "Quantity is required.";
-                      }
-                      return null;
-                    },
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: _directRequiredDate,
-                    builder: (context, value, child) {
-                      return CustomDatePicker(
-                        title: "Required Date",
-                        initialDate: value,
-                        isRequired: true,
-                        readOnly: true,
-                        startDate: leadTimeRequiredDate ?? DateTime.now(),
-                        setValue: (value) {
-                          _directRequiredDate.value = value;
-                        },
-                      );
-                    },
-                  ),
-                  CustomTextField(
-                    title: "Remark",
-                    hint: "Enter Remark",
-                    minLines: 3,
-                    maxLines: 10,
-                    textController: _remarkC,
-                  ),
-                ],
-              ),
-            ),
-          ),
+  Widget _dropdown({
+    required String title,
+    required ValueNotifier<_Option?> selected,
+    required List<_Option> Function() items,
+    required void Function(_Option?) onChanged,
+    ValueNotifier<_Option?>? parent,
+  }) {
+    return ListenableBuilder(
+      listenable: Listenable.merge([if (parent != null) parent, selected]),
+      builder: (context, _) {
+        return CustomDropDownWidget(
+          title: title,
+          isRequired: true,
+          hintText: "Select $title",
+          initialValue: selected.value,
+          dataList: items(),
+          onValueClear: () => onChanged(null),
+          onSelected: onChanged,
+          validator: (value) {
+            if (value == null || value.isEmpty) return "$title is required.";
+            return null;
+          },
         );
       },
     );
   }
 
-  Widget _inDirectView() {
-    return ValueListenableBuilder(
-      valueListenable: rawMaterialList,
-      builder: (context, value, child) {
-        return SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-          child: Form(
-            key: _inDirectFormKey,
-            child: Column(
-              children: [
-                Container(
-                  decoration: commonCardDecoration(),
-                  padding: EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ValueListenableBuilder(
-                        valueListenable: _selectedMaterial,
-                        builder: (context, value, child) {
-                          return CustomDropDownWidget(
-                            title: "Material",
-                            isRequired: true,
-                            hintText: "Select Material",
-                            initialValue: value,
-                            dataList: materialList,
-                            onValueClear: () {
-                              _selectedMaterial.value = null;
-                              _selectedSubMaterial.value = null;
-                              _inDirectRequiredDate.value = null;
-                              _uomC.clear();
-                            },
-                            onSelected: (value) {
-                              _selectedMaterial.value = value;
-                              _selectedSubMaterial.value = null;
-                              _inDirectRequiredDate.value = null;
-                              _uomC.clear();
-                            },
-                            validator: (v) {
-                              if (v == null || v.isEmpty) {
-                                return "Material is required.";
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: _selectedMaterial,
-                        builder: (context, value, child) {
-                          return ValueListenableBuilder(
-                            valueListenable: _selectedSubMaterial,
-                            builder: (context, value, child) {
-                              return CustomDropDownWidget(
-                                title: "Sub Material",
-                                isRequired: true,
-                                hintText: "Select Sub Material",
-                                initialValue: value,
-                                dataList: subMaterialList,
-                                onValueClear: () {
-                                  _selectedSubMaterial.value = null;
-                                  _inDirectRequiredDate.value = null;
-                                  _uomC.clear();
-                                },
-                                onSelected: (value) {
-                                  _selectedSubMaterial.value = value;
-                                  updateUOM();
-                                  _inDirectRequiredDate.value =
-                                      indirectLeadTimeRequiredDate;
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Sub material is required.";
-                                  }
-                                  return null;
-                                },
-                              );
-                            },
-                          );
-                        },
-                      ),
-
-                      AnimatedBuilder(
-                        animation: Listenable.merge([
-                          _selectedMaterial,
-                          _selectedSubMaterial,
-                        ]),
-                        builder: (context, _) {
-                          final item = selectedIndirectItem;
-                          return Column(
-                            children: [
-                              AnimatedSize(
-                                duration: const Duration(milliseconds: 100),
-                                alignment: Alignment.topCenter,
-                                child:
-                                    item == null
-                                        ? const SizedBox(width: double.infinity)
-                                        : infoCard([
-                                          {
-                                            'title': 'UOM',
-                                            'value': selectedInDirectUom,
-                                          },
-                                          {
-                                            'title': 'Lead Time (Days)',
-                                            'value':
-                                                indirectLeadTimeDays
-                                                    .addCommas(),
-                                          },
-                                          {
-                                            'title': 'Is Tolerant',
-                                            'value': selectedInDirectIsTolerant,
-                                          },
-                                        ]),
-                              ),
-                              verticalSpacing(),
-                            ],
-                          );
-                        },
-                      ),
-
-                      ValueListenableBuilder(
-                        valueListenable: _inDirectRequiredDate,
-                        builder: (context, value, child) {
-                          return CustomDatePicker(
-                            title: "Required Date",
-                            initialDate: value,
-                            isRequired: true,
-                            readOnly: true,
-                            startDate:
-                                indirectLeadTimeRequiredDate ?? DateTime.now(),
-                            setValue: (value) {
-                              _inDirectRequiredDate.value = value;
-                            },
-                            validator: (value) {
-                              if (value == null) {
-                                return 'Date is required.';
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      ),
-                      CustomTextField(
-                        title: "Quantity",
-                        hint: "Enter Quantity",
-                        isRequired: true,
-                        inputFormatterList: InputValidator.decimal(2),
-                        keyboardType: TextInputType.numberWithOptions(),
-                        textController: _quantityC,
-                        validator: (value) {
-                          if (value == null || value == "") {
-                            return "Quantity is required.";
-                          }
-                          return null;
-                        },
-                      ),
-                      CustomTextField(
-                        title: "Remark",
-                        hint: "Enter Remark",
-                        minLines: 3,
-                        maxLines: 10,
-                        textController: _remarkC,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+  Widget _infoCard(
+    Listenable listenable,
+    bool Function() hasItem,
+    List<_Option> Function() rows,
+  ) {
+    return ListenableBuilder(
+      listenable: listenable,
+      builder: (context, _) {
+        return Column(
+          children: [
+            AnimatedSize(
+              duration: const Duration(milliseconds: 100),
+              alignment: Alignment.topCenter,
+              child:
+                  hasItem()
+                      ? infoCard(rows())
+                      : const SizedBox(width: double.infinity),
             ),
+            verticalSpacing(),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _quantityField() {
+    return CustomTextField(
+      title: "Quantity",
+      hint: "Enter Quantity",
+      isRequired: true,
+      inputFormatterList: InputValidator.decimal(2),
+      keyboardType: TextInputType.numberWithOptions(),
+      textController: _quantityC,
+      validator: (value) {
+        if (value == null || value == "") return "Quantity is required.";
+        return null;
+      },
+    );
+  }
+
+  Widget _remarkField() {
+    return CustomTextField(
+      title: "Remark",
+      hint: "Enter Remark",
+      minLines: 3,
+      maxLines: 10,
+      textController: _remarkC,
+    );
+  }
+
+  Widget _formCard({required Key formKey, required List<Widget> children}) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      child: Form(
+        key: formKey,
+        child: Container(
+          decoration: commonCardDecoration(),
+          padding: EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children,
           ),
+        ),
+      ),
+    );
+  }
+
+  // REBUILDS WHEN BUDGET LOADS SO DROPDOWNS FILL
+  Widget _directView() {
+    return ListenableBuilder(
+      listenable: _budgetList,
+      builder: (context, _) {
+        return _formCard(
+          formKey: _directFormKey,
+          children: [
+            _dropdown(
+              title: "Category",
+              selected: _category,
+              items: () => _categoryList,
+              onChanged: _setCategory,
+            ),
+            _dropdown(
+              title: "Sub Category",
+              parent: _category,
+              selected: _subCategory,
+              items: () => _subCategoryList,
+              onChanged: _setSubCategory,
+            ),
+            _dropdown(
+              title: "Description",
+              parent: _subCategory,
+              selected: _description,
+              items: () => _descriptionList,
+              onChanged: _setDescription,
+            ),
+            _dropdown(
+              title: "Sub Material",
+              parent: _description,
+              selected: _directSubMaterial,
+              items: () => _directSubMaterialList,
+              onChanged: _setDirectSubMaterial,
+            ),
+            _infoCard(
+              Listenable.merge([
+                _category,
+                _subCategory,
+                _description,
+                _directSubMaterial,
+              ]),
+              () => _selectedBudget != null,
+              () {
+                final item = _selectedBudget!;
+                return [
+                  {'title': 'Material Name', 'value': item.level4MaterialName},
+                  {'title': 'Sub Material Name', 'value': item.level4Name},
+                  {
+                    'title': 'UOM',
+                    'value':
+                        '${item.level4SubMaterialUom} (${item.level4SubMaterialUomCode})',
+                  },
+                  {
+                    'title': 'Material Rate',
+                    'value': item.materialCost.toIndianCurrency(),
+                  },
+                  {
+                    'title': 'Required Quantity',
+                    'value': item.quantity.addCommas(),
+                  },
+                  {
+                    'title': 'Order Quantity',
+                    'value': item.orderQuantity.addCommas(),
+                  },
+                  {
+                    'title': 'Received Quantity',
+                    'value': item.receivedQuantity.addCommas(),
+                  },
+                  {
+                    'title': 'Lead Time (Days)',
+                    'value': item.level4LeadTimeInDays.addCommas(),
+                  },
+                  {
+                    'title': 'Is Tolerant',
+                    'value': _yesNo(item.level4IsTolerant),
+                  },
+                ];
+              },
+            ),
+            _quantityField(),
+            ValueListenableBuilder(
+              valueListenable: _directDate,
+              builder: (context, value, _) {
+                return CustomDatePicker(
+                  title: "Required Date",
+                  initialDate: value,
+                  isRequired: true,
+                  readOnly: true,
+                  startDate: _directLeadDate ?? DateTime.now(),
+                  setValue: (value) => _directDate.value = value,
+                );
+              },
+            ),
+            _remarkField(),
+          ],
+        );
+      },
+    );
+  }
+
+  // REBUILDS WHEN MASTER LIST LOADS SO DROPDOWNS FILL
+  Widget _inDirectView() {
+    return ListenableBuilder(
+      listenable: _masterList,
+      builder: (context, _) {
+        return _formCard(
+          formKey: _inDirectFormKey,
+          children: [
+            _dropdown(
+              title: "Material",
+              selected: _material,
+              items: () => _materialList,
+              onChanged: _setMaterial,
+            ),
+            _dropdown(
+              title: "Sub Material",
+              parent: _material,
+              selected: _subMaterial,
+              items: () => _subMaterialList,
+              onChanged: _setSubMaterial,
+            ),
+            _infoCard(
+              Listenable.merge([_material, _subMaterial]),
+              () => _selectedMaster != null,
+              () {
+                final item = _selectedMaster!;
+                return [
+                  {'title': 'UOM', 'value': item.uomCode},
+                  {
+                    'title': 'Lead Time (Days)',
+                    'value': _toInt(item.leadTimeInDays).addCommas(),
+                  },
+                  {'title': 'Is Tolerant', 'value': _yesNo(item.isTolerant)},
+                ];
+              },
+            ),
+            ValueListenableBuilder(
+              valueListenable: _inDirectDate,
+              builder: (context, value, _) {
+                return CustomDatePicker(
+                  title: "Required Date",
+                  initialDate: value,
+                  isRequired: true,
+                  readOnly: true,
+                  startDate: _inDirectLeadDate ?? DateTime.now(),
+                  setValue: (value) => _inDirectDate.value = value,
+                  validator: (value) {
+                    if (value == null) return 'Date is required.';
+                    return null;
+                  },
+                );
+              },
+            ),
+            _quantityField(),
+            _remarkField(),
+          ],
         );
       },
     );

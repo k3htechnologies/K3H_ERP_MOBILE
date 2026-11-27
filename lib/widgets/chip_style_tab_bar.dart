@@ -45,9 +45,7 @@ class ChipStyleTabBar extends StatelessWidget {
     );
   }
 
-  ///------------------------------------------
-  /// Outlined Style (Existing)
-  ///------------------------------------------
+  /// Outlined Style
   Widget _buildOutlinedTabBar() {
     return TabBar(
       padding: EdgeInsets.zero,
@@ -95,9 +93,7 @@ class ChipStyleTabBar extends StatelessWidget {
     );
   }
 
-  ///------------------------------------------
-  /// Underline Style (Existing)
-  ///------------------------------------------
+  /// Underline Style
   Widget _buildUnderlineTabBar() {
     return TabBar(
       padding: EdgeInsets.zero,
@@ -122,48 +118,67 @@ class ChipStyleTabBar extends StatelessWidget {
     );
   }
 
-  ///------------------------------------------
-  /// Segmented Style (New - Like Screenshot)
-  ///------------------------------------------
+  /// Segmented Style
   Widget _buildSegmentedTabBar() {
-    return Container(
-      height: 40.h,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE8EAFD),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TabBar(
-        controller: controller,
-        indicatorSize: TabBarIndicatorSize.tab,
-        indicatorPadding: EdgeInsets.zero,
-        indicator: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFEEEEF7),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFD6D6E3), width: 1),
         ),
-        dividerColor: Colors.transparent,
-        isScrollable: true,
-        tabAlignment: TabAlignment.start,
-        splashFactory: NoSplash.splashFactory,
-        overlayColor: WidgetStateProperty.all(Colors.transparent),
-        labelColor: AppColor.primary,
-        unselectedLabelColor: AppColor.grey,
-        labelStyle: AppTextStyle.ts14SB(),
-        unselectedLabelStyle: AppTextStyle.ts14M(),
-        onTap: onTabChanged,
-        tabs:
-            tabs.map((title) {
-              return Tab(
-                child: Center(child: Text(title.isEmpty ? "Unknown" : title)),
-              );
-            }).toList(),
+        child: AnimatedBuilder(
+          animation: controller.animation!,
+          builder: (context, _) {
+            final animValue = controller.animation!.value;
+
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(tabs.length, (index) {
+                final t = (1 - (animValue - index).abs()).clamp(0.0, 1.0);
+                final title = tabs[index].isEmpty ? "Unknown" : tabs[index];
+
+                final bgColor = Color.lerp(
+                  AppColor.primary.withValues(alpha: 0),
+                  AppColor.primary,
+                  t,
+                );
+                final textColor = Color.lerp(AppColor.grey, Colors.white, t);
+
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    controller.animateTo(index);
+                    onTabChanged?.call(index);
+                  },
+                  child: Container(
+                    height: 25.h,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: bgColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      title,
+                      style: (t > 0.5
+                              ? AppTextStyle.ts14SB()
+                              : AppTextStyle.ts14M())
+                          .copyWith(color: textColor),
+                    ),
+                  ),
+                );
+              }),
+            );
+          },
+        ),
       ),
     );
   }
 
-  ///------------------------------------------
-  /// Enquiry Style
-  ///------------------------------------------
+  /// Classic Style
   Widget _buildClassicTabBar() {
     return IntrinsicWidth(
       child: Container(

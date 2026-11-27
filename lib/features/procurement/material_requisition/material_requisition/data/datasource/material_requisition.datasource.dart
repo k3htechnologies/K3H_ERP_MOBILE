@@ -38,6 +38,11 @@ abstract interface class MaterialRequisitionDatasource {
     required String pageName,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> apicallPullMaterialRequisitionDetails({
+    required int materialRequisitionId,
+    required int projectId,
+  });
 }
 
 class MaterialRequisitionDataSourceImpl
@@ -262,6 +267,38 @@ class MaterialRequisitionDataSourceImpl
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullMaterialRequisitionDetails({
+    required int materialRequisitionId,
+    required int projectId,
+  }) async {
+    try {
+      String url =
+          "MaterialRequisition/PullMaterialRequisitionDetails"
+          "?MaterialRequisitionId=$materialRequisitionId"
+          "&ProjectId=$projectId";
+
+      var networkResponse = await baseClient.getRequestWithAuthentication(url);
+
+      return {
+        'data': List<MaterialRequisitionModel>.from(
+          networkResponse["data"].map(
+            (e) => MaterialRequisitionModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return await apicallPullMaterialRequisitionDetails(
+          materialRequisitionId: materialRequisitionId,
+          projectId: projectId,
+        );
+      }
       rethrow;
     }
   }

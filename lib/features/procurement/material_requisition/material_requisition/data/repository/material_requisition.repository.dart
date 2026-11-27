@@ -35,6 +35,10 @@ abstract interface class MaterialRequisitionRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getMaterialRequisitionDetails({
+    required int materialRequisitionId,
+    required int projectId,
+  });
 }
 
 class MaterialRequisitionRepositoryImpl
@@ -148,6 +152,24 @@ class MaterialRequisitionRepositoryImpl
             pageName: pageName,
             queryParams: queryParams,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getMaterialRequisitionDetails({
+    required int materialRequisitionId,
+    required int projectId,
+  }) async {
+    try {
+      var result = await materialRequisitionDatasource
+          .apicallPullMaterialRequisitionDetails(
+            materialRequisitionId: materialRequisitionId,
+            projectId: projectId,
+          );
+
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
