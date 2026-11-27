@@ -80,7 +80,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
 
     _initializeTextEditingControllers();
 
-    // Pre-fill data if in edit mode
     if (_isEditMode && widget.outdoorModel != null) {
       _populateFormFields();
     }
@@ -112,7 +111,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
 
     outdoorDate = widget.outdoorModel!.outDoorDate;
 
-    // Extract time from DateTime and format it
     final dateTime = widget.outdoorModel!.outDoorTime;
     initialMeetingTime = TimeOfDay(
       hour: dateTime.hour,
@@ -120,7 +118,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
     );
     meetingTime = formatTimeOfDayHHmm(initialMeetingTime);
 
-    // Pre-fill department if available
     if (widget.outdoorModel!.departmentId > 0) {
       _selectedDepartmentNotifier.value = [
         {
@@ -162,7 +159,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
       });
     }
 
-    // Pre-fill visiting card file if available
     if (widget.outdoorModel!.visitingCardUrl.isNotEmpty) {
       visitingCardFile.fileNameList = [widget.outdoorModel!.visitingCardUrl];
     }
@@ -322,10 +318,8 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                         initialValue: selectedDept,
                         dataFetchCallBack: _fetchDepartment,
                         onSelected: (value) {
-                          // Clear employee list and selection first, before updating department
                           _outdoorCubit.clearEmployeeList();
                           _selectedEmployeeNotifier.value = [];
-                          // Then update department
                           _selectedDepartmentNotifier.value = value;
                         },
                         validator: (value) {
@@ -487,7 +481,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
       return;
     }
 
-    // Validate required fields
     if (outdoorDate == null) {
       showErrorMessage(context, 'Error', 'Outdoor Date is required');
       return;
@@ -506,7 +499,6 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
     final departmentId =
         _selectedDepartmentNotifier.value.first['zAttributesId'].toString();
 
-    // Format date and time
     final formattedDate = outdoorDate!.toIso8601String();
     final formattedTime = meetingTime!;
 
